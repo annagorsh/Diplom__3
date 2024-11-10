@@ -2,6 +2,8 @@ import string
 import random
 from random import randint
 import pytest
+import requests
+from links import *
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
@@ -24,7 +26,7 @@ def driver(request):
 
     browser.quit()
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def payload():
     def generate_random_string(length):
         letters = string.ascii_lowercase
@@ -42,3 +44,28 @@ def payload():
     }
 
     return payload
+
+
+@pytest.fixture(scope='session')
+def registration(payload):
+    response = requests.post(CREATE_USER_URL, data=payload)
+    assert response.status_code == 200
+    return {
+        'email': payload['email'],
+        'password': payload['password'],
+        'name': payload['name'],
+        'accessToken': response.json().get('accessToken')
+    }
+
+@pytest.fixture(scope='session')
+def get_token(registration):
+    return registration['accessToken']
+
+@pytest.fixture(scope='session', autouse=True)
+def delete_user(get_token):
+    headers = {'Authorization': f'{get_token}'}
+
+    yield
+
+    delete_response = requests.delete(AUTH_USER_URL, headers=headers)
+    assert delete_response.status_code == 202

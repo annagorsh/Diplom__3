@@ -1,5 +1,4 @@
 import allure
-import requests
 from links import *
 from locators import OrderPopupFeedLocators, OrderFeedLocators, OrderCreatedLocators
 from pages.login_page import LoginPage
@@ -24,15 +23,11 @@ class TestOrderFeed:
         assert driver.find_element(*OrderPopupFeedLocators.CONTENTS_HEADER).is_displayed()
 
     @allure.title("Проверяем, что заказы пользователя из раздела 'История заказов' отображаются в ленте")
-    def test_users_orders_displayed_in_feed(self, driver, payload):
-        response = requests.post(CREATE_USER_URL, data=payload)
-        assert response.status_code == 200
-        email = payload.get("email")
-        password = payload.get("password")
+    def test_users_orders_displayed_in_feed(self, driver, registration):
         login_page = LoginPage(driver)
         login_page.navigate(LOGIN_URL)
-        login_page.fill_in_email(email)
-        login_page.fill_in_password(password)
+        login_page.fill_in_email(registration['email'])
+        login_page.fill_in_password(registration['password'])
         login_page.click_login_button()
         main_page = MainPage(driver)
         main_page.wait_order_button_visible()
@@ -58,20 +53,13 @@ class TestOrderFeed:
         specific_order_locator = (OrderFeedLocators.SPECIFIC_ORDER_LOCATOR[0], OrderFeedLocators.SPECIFIC_ORDER_LOCATOR[1].format(order_id))
         element = orders_feed.wait_for_element_visible(specific_order_locator)
         assert element.is_displayed()
-        token = response.json().get("accessToken")
-        delete_response = requests.delete(AUTH_USER_URL, headers={"Authorization": token})
-        assert delete_response.status_code == 202
 
     @allure.title("Проверяем, что при создании заказа счётчик 'Выполнено за всё время' увеличивается")
-    def test_alltime_orders_increased(self, driver, payload):
-        response = requests.post(CREATE_USER_URL, data=payload)
-        assert response.status_code == 200
-        email = payload.get("email")
-        password = payload.get("password")
+    def test_alltime_orders_increased(self, driver, registration):
         login_page = LoginPage(driver)
         login_page.navigate(LOGIN_URL)
-        login_page.fill_in_email(email)
-        login_page.fill_in_password(password)
+        login_page.fill_in_email(registration['email'])
+        login_page.fill_in_password(registration['password'])
         login_page.click_login_button()
         main_page = MainPage(driver)
         main_page.wait_order_button_visible()
@@ -94,20 +82,13 @@ class TestOrderFeed:
         order_feed_return = OrderFeedPage(driver)
         new_result = order_feed_return.get_completed_orders_count()
         assert new_result == result + 1
-        token = response.json().get("accessToken")
-        delete_response = requests.delete(AUTH_USER_URL, headers={"Authorization": token})
-        assert delete_response.status_code == 202
 
     @allure.title("Проверяем, что при создании нового заказа счётчик 'Выполнено за сегодня' увеличивается")
-    def test_todays_orders_increased(self, driver, payload):
-        response = requests.post(CREATE_USER_URL, data=payload)
-        assert response.status_code == 200
-        email = payload.get("email")
-        password = payload.get("password")
+    def test_todays_orders_increased(self, driver, registration):
         login_page = LoginPage(driver)
         login_page.navigate(LOGIN_URL)
-        login_page.fill_in_email(email)
-        login_page.fill_in_password(password)
+        login_page.fill_in_email(registration['email'])
+        login_page.fill_in_password(registration['password'])
         login_page.click_login_button()
         main_page = MainPage(driver)
         main_page.wait_order_button_visible()
@@ -132,20 +113,13 @@ class TestOrderFeed:
         order_feed_return.scroll_to_todays_counter()
         new_result = order_feed_return.get_todays_orders_count()
         assert new_result == result + 1
-        token = response.json().get("accessToken")
-        delete_response = requests.delete(AUTH_USER_URL, headers={"Authorization": token})
-        assert delete_response.status_code == 202
 
     @allure.title("Проверяем отображение созданного заказа в разделе В работе")
-    def test_created_order_in_work(self, driver, payload):
-        response = requests.post(CREATE_USER_URL, data=payload)
-        assert response.status_code == 200
-        email = payload.get("email")
-        password = payload.get("password")
+    def test_created_order_in_work(self, driver, registration):
         login_page = LoginPage(driver)
         login_page.navigate(LOGIN_URL)
-        login_page.fill_in_email(email)
-        login_page.fill_in_password(password)
+        login_page.fill_in_email(registration['email'])
+        login_page.fill_in_password(registration['password'])
         login_page.click_login_button()
         main_page = MainPage(driver)
         main_page.wait_order_button_visible()
@@ -164,6 +138,3 @@ class TestOrderFeed:
         specific_locator = OrderCreatedLocators.WAITING_FOR[0], OrderCreatedLocators.WAITING_FOR[1].format(result)
         element = order_feed.wait_for_element_visible(specific_locator, timeout=999)
         assert element.is_displayed()
-        token = response.json().get("accessToken")
-        delete_response = requests.delete(AUTH_USER_URL, headers={"Authorization": token})
-        assert delete_response.status_code == 202

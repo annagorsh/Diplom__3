@@ -41,5 +41,5 @@ class TestResetPassword:
         reset_page.click_password_field()
         reset_page.find_password_field_type_text()
         reset_page.click_eye_button()
-        result = reset_page.check_if_password_field_is_text()
+        result = reset_page.is_password_text()
         assert result == True

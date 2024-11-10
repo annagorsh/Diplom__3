@@ -15,8 +15,6 @@ ORDER_FEED_URL = MAIN_URL + "feed"
 ORDER_HISTORY_URL = MAIN_URL + "account/order-history"
 
 #Ссылки для API-запросов
-API_URL = "https://stellarburgers.nomoreparties.site/api/"
+CREATE_USER_URL = MAIN_URL+"api/auth/register"
 
-CREATE_USER_URL = API_URL+"auth/register"
-
-AUTH_USER_URL = API_URL+"auth/user"
+AUTH_USER_URL = MAIN_URL+"api/auth/user"

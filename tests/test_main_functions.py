@@ -1,4 +1,3 @@
-import requests
 from links import *
 from locators import IngredientPopupLocators, MainPageLocators, OrderCreatedLocators
 from pages.ingredient_popup_page import IngredientPopupPage
@@ -52,15 +51,11 @@ class TestMainFunctions:
         assert driver.find_element(*MainPageLocators.FLUO_BUN_COUNTER).is_displayed()
 
     @allure.title("Проверяем флоу оформления заказа авторизованным пользователем")
-    def test_authorized_order_flow(self, driver, payload):
-        response = requests.post(CREATE_USER_URL, data=payload)
-        assert response.status_code == 200
-        email = payload.get("email")
-        password = payload.get("password")
+    def test_authorized_order_flow(self, driver, registration):
         login_page = LoginPage(driver)
         login_page.navigate(LOGIN_URL)
-        login_page.fill_in_email(email)
-        login_page.fill_in_password(password)
+        login_page.fill_in_email(registration['email'])
+        login_page.fill_in_password(registration['password'])
         login_page.click_login_button()
         main_page = MainPage(driver)
         main_page.wait_order_button_visible()
@@ -72,6 +67,3 @@ class TestMainFunctions:
         popup = OrderCreatedPage(driver)
         popup.wait_until_popup_text_visible()
         assert driver.find_element(*OrderCreatedLocators.POPUP_TEXT).is_displayed()
-        token = response.json().get("accessToken")
-        delete_response = requests.delete(AUTH_USER_URL, headers={"Authorization": token})
-        assert delete_response.status_code == 202
