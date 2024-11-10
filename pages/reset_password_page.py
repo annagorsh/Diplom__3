@@ -22,7 +22,7 @@ class ResetPasswordPage(BasePage):
         self.wait_for_element_visible(ResetPasswordLocators.NEW_PASSWORD_FIELD)
 
     @allure.step("Убеждаемся, что значение в поле 'Пароль' стало видимым")
-    def check_if_password_field_is_text(self):
+    def is_password_text(self):
         field = self.find_element(ResetPasswordLocators.PASSWORD_FIELD2)
         return field.get_attribute("type") == "text"
 
